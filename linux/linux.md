@@ -1,14 +1,12 @@
-
-
-everything is file, or processing. 
-
-
+0
 
 `dpkg-reconfigure keyboard-configuration`
 
 `service keyboard-setup restart`
 
 //////ip a  //显示ip配置
+
+##### ssh 远程链接服务器：
 
 ```shell
 gorkr@gorkr-PC:~$ ssh supinfo@192.168.39.132
@@ -21,6 +19,8 @@ Please type 'yes' or 'no': yes
 Warning: Permanently added '192.168.39.132' (ECDSA) to the list of known hosts.
 supinfo@192.168.39.132's passwo
 ```
+
+
 sudo su
 
 exit //退出root
@@ -112,9 +112,7 @@ w 移动光标到单词末尾  $移动光标到行末   b单词开头
 
 
 
-s权限： 设置使文件在执行阶段具有文件所有者的权限，相当于临时拥有文件所有者的身份. 典型的文件是passwd. 如果一般用户执行该文件, 则在执行过程中, 该文件可以获得root权限, 从而可以更改用户的密码.
 
-t权限：要删除一个文档，您不一定要有这个文档的写权限，但您一定要有这个文档的上级目录的写权限。也就是说，您即使没有一个文档的写权限，但您有这个文档的上级目录的写权限，您 也能够把这个文档给删除，而假如没有一个目录的写权限，也就不能在这个目录下创建文档。在一个目录上设了t权限位后，（如/home，权限为1777)任何的用户都能够在这个目录下创建文档，但只能删除自己创建的文档(root除外)，这就对任何用户能写的目录下的用户文档 启到了保护的作用。
 
 
 

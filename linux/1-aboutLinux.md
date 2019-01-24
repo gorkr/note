@@ -101,6 +101,8 @@ Linux的Ext文件系统是如何与磁盘内存产生对应的呢？我们知道
 
 
 
+
+
 # 常用命令
 
 #### `cut`命令
@@ -311,3 +313,56 @@ $ echo "2018abcdefdf06zzz01" |tr -d -c '[0-9]' #输出20180601
 #### 搜索
 
 `find` 命令 和 `locate`,`updatedb`。  
+
+
+
+# 打包和压缩
+
+**元数据**（**Metadata**）
+为描述数据的数据（data about data），主要是描述数据属性（property）的信息，用来支持如指示存储位置、历史数据、资源查找、文件记录等功能。元数据算是一种电子式目录，为了达到编制目录的目的，必须在描述并收藏数据的内容或特色，进而达成协助数据检索的目的。
+
+压缩并不会破坏数据。
+
+#### `tar`命令
+
+```
+-v: verbose mode
+-t: 列出，但不解包
+-x: 解包
+-c: 打包
+-z: to compress or decompress *.gz
+-j: to compress or decompress *.bz2  #就算不添加zj参数，tar也会自动执行解压缩。
+-f: 指定对象
+```
+
+#### `Gzip` and `bzip2`
+
+他们再压缩/解压完成后默认会删除源文件。
+
+bz2压缩率更高，gz压缩速率更快。
+
+压缩：
+
+```shell
+gzip file
+bzip2 file
+```
+
+解压：
+
+``` shell
+gzip -d file.gz
+gunzip file.gz
+bzip2 -d file.bz2
+bunzip2 file.bz2
+```
+
+#### `(bz|z)(cat|less|more)`命令
+
+```shell
+zcat /proc/config.gz
+bzcat file.bz2
+```
+
+
+

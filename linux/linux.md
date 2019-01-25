@@ -1,4 +1,4 @@
-0
+
 
 `dpkg-reconfigure keyboard-configuration`
 
@@ -29,13 +29,9 @@ pwd //当前目录
 
 nano //修改文件
 
-tuch  filename//创建空文件
-
 mkdir -p 1/2/3/4 如果123不存在，则创建123
 
 rmdir -p
-
-man man
 
 chown  group:user //change owner  :happy:
 
@@ -61,7 +57,7 @@ find /home/supinfo/ | cpio -ov > /tmp/home-archive.cpio
 
 cpio -it < /tmp/home-archive.cpio
 
- cpio -id --no-absolute-filename < /tmp/home-archive.cpio 
+man man cpio -id --no-absolute-filename < /tmp/home-archive.cpio 
 
  tar -cf /tmp/home-supinfo.tar /home/supinfo/q
 
@@ -242,7 +238,7 @@ supinfo@debian-master:~$ find /home/supinfo/ -type d -exec chmod 750 {} \;
 
 ![1547696034807](/tmp/1547696034807.png)
 
-```
+```shell
 /
 root@debian-master:/home/supinfo# ls -l messages
 -rw-r----- 1 root root 782174 Jan 17 04:39 messages
@@ -579,49 +575,6 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 
 
 
-####权限s 分为SUID 和 SGID。
-
-
-
- 当s出现在**owner**权限的x上时 使用者在执行时拥有owner的权限,称为SUID。例如 `passwd`命令
-
-```shell
-gorkr@gorkr-PC:~$ ll /usr/bin/passwd
--rwsr-xr-x 1 root root 59640 4月  12  2018 /usr/bin/passwd
-```
-
-gorkr可执行`passwd`, 但它的owner是root. 因为s权限，所以当gorkr执行`passwd`时，将暂时获得root的权限即rwx. 所以`/etc/shadow`就能被gorkr所执行的`passwd`所修改
-
-SUID只能作用在`binary file`上，不能作用于`shell script`.
-
-
-
-当s出现在group权限的x上时，使用者执行时拥有group的权利,称为GUID。例如`locate`命令
-
-SGID也可作用于目录，主要用途：若用户在目录下新建文件，该文件的群组与此目录的群组相同。
-
-
-
-权限t即SBIT,只对目录有效。 当甲这个用户于A目录具有群组或者其他人的身份，并且拥有目录的w权限，这表示 甲用户对该目录内任何人建立的文件或目录均可进行‘增改善’ ， 不过在A上加入SBIT时，甲就只能对自己建立的目录进行操作。
-
-
-
-在3为数之前，再加一位表示特殊权限。
-
-- 4 SUID
-- 2 SGID
-- 1 SBIT
-
-```shell
-gorkr@gorkr-PC:~$ cd /tmp
-gorkr@gorkr-PC:/tmp$ touch test
-gorkr@gorkr-PC:/tmp$ ll test 
--rw-r--r-- 1 gorkr gorkr 0 1月  23 10:45 test
-gorkr@gorkr-PC:/tmp$ chmod 4755 test 
-gorkr@gorkr-PC:/tmp$ ll test
--rwsr-xr-x 1 gorkr gorkr 0 1月  23 10:45 test
-```
-
 
 
 #### `/proc/*` 内存
@@ -661,3 +614,33 @@ gorkr@gorkr-PC:~$ fuser -uv .
 #### Daemon
 
 systemctl 命令用来管理systemd，systemd常驻于内存。
+
+#### 执行文件路径变量： `$PATH`
+
+```shell
+gorkr@gorkr-PC:~$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin
+root@gorkr-PC:/home/gorkr# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+root@gorkr-PC:/home/gorkr# PATH="{PATH}:/root"
+root@gorkr-PC:/home/gorkr# echo $PATH 
+{PATH}:/root
+root@gorkr-PC:~# PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+```
+
+##### 将用户添加进组
+
+```shell
+orkr@gorkr-PC:~$ groups ninggou
+ninggou : ninggou
+gorkr@gorkr-PC:~$ sudo su
+root@gorkr-PC:/home/gorkr# gpasswd -a ninggou sudo
+正在将用户“ninggou”加入到“sudo”组中
+root@gorkr-PC:/home/gorkr# exit
+exit
+gorkr@gorkr-PC:~$ groups ninggou
+ninggou : ninggou sudo
+```
+

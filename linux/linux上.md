@@ -366,3 +366,235 @@ bzcat file.bz2
 
 
 
+# 用户，群组和权限
+
+**CRUD **增加(Create)、读取查询(Retrieve)、更新(Update)和删除(Delete)
+
+
+
+- 系统管理员：root, 0 
+- 系统用户：系统用户通常是不可登陆的，执行某些服务及进程的帐号 。 1-999
+- 登录用户：一般用户， 1000-
+
+```shell
+/etc/passwd: 用户帐号的相关信息
+/etc/group: 组帐号的相关信息
+/etc/shadow: 用户密码及相关属性
+/etc/gshadow: 组密码及相关属性
+```
+
+#### 目录权限
+
+- r 可以查阅目录下的文件名数据。例如可以使用`ls`。
+- w 可以增改删
+- x 可进入该目录成为工作目录。即`cd`。
+
+要读一个文件时首先要有这个文件所在目录的x权限。
+
+#### linux文件类型 
+
+- 正规文件： `-`， 包括纯文本，二进制文件 和 数据格式文件。
+- 目录：`d` 。
+- 硬链接： `l`。
+- 设备与配置文件， 通常存在与`/dev/`下
+  - 区块设备档(block)： `b` , 如硬盘。
+  - 字符设备文件(character)： `c`, 串行端口的接口设备， 例如键盘，鼠标。
+- 资料接口文件(sockets)： 被用于网络上的数据承接，`s`,通常位于`/run`,`/tmp`。
+- 数据输送文件(FIFO, pipe)： 解决多个程序同时存取一个文件造成的错误问题。`p`。        
+
+#### 默认权限与隐藏权限
+
+umask 权限默认值  ， 0022
+
+建立文件时 ： (-rw-rw-rw-) - 0022 = -rw-r--r--
+
+建立目录时 ： (drwxrwxrwx) - 0022 = drwxr-xr-x
+
+
+
+##### 权限s 分为SUID 和 SGID。
+
+ 当s出现在**owner**权限的x上时 使用者在执行时拥有owner的权限,称为SUID。例如 `passwd`命令
+
+```shell
+gorkr@gorkr-PC:~$ ll /usr/bin/passwd
+-rwsr-xr-x 1 root root 59640 4月  12  2018 /usr/bin/passwd
+```
+
+gorkr可执行`passwd`, 但它的owner是root. 因为s权限，所以当gorkr执行`passwd`时，将暂时获得root的权限即rwx. 所以`/etc/shadow`就能被gorkr所执行的`passwd`所修改
+
+SUID只能作用在`binary file`上，不能作用于`shell script`.
+
+
+
+当s出现在group权限的x上时，使用者执行时拥有group的权利,称为GUID。例如`locate`命令。
+
+SGID也可作用于目录，主要用途：若用户在目录下新建文件，该文件的群组与此目录的群组相同。
+
+
+
+权限t即SBIT,只对目录有效。 当甲这个用户于A目录具有群组或者其他人的身份，并且拥有目录的w权限，这表示 甲用户对该目录内任何人建立的文件或目录均可进行‘增改善’ ， 不过在A上加入SBIT时，甲就只能对自己建立的目录进行操作。
+
+
+
+在3位数之前，再加一位表示特殊权限。
+
+- 4 SUID
+- 2 SGID
+- 1 SBIT
+
+```shell
+gorkr@gorkr-PC:~$ cd /tmp
+gorkr@gorkr-PC:/tmp$ touch test
+gorkr@gorkr-PC:/tmp$ ll test 
+-rw-r--r-- 1 gorkr gorkr 0 1月  23 10:45 test
+gorkr@gorkr-PC:/tmp$ chmod 4755 test 
+gorkr@gorkr-PC:/tmp$ ll test
+-rwsr-xr-x 1 gorkr gorkr 0 1月  23 10:45 test
+```
+
+
+
+# `sudo`和Aliases
+
+```shell
+sudo -l     #列出当前用户可以执行的特权命令
+```
+
+####`visudo`
+
+Linux默认是没有将用户添加到sudoers列表中的，需要root手动将账户添加到sudoers列表中，才能让普通账户执行sudo命令。
+
+sudo 配置文件存储于`/etc/sudoers`。只用root用户有修改的权限。但推荐使用`visudo`命令，而不是直接修改配置文件。
+
+```shell
+root@gorkr-PC:/home/gorkr# export EDITOR=/usr/bin/vim
+root@gorkr-PC:/home/gorkr# visudo
+```
+
+```shell
+bill ALL = (ALL) NOPASSWD:/sbin/reboot
+%wheel ALL = (ALL) ALL, !/bin/su
+```
+
+#### `Aliases`
+
+在`visudo`通过创建别名，使命令管理更为方便。
+
+```shell
+Cmnd_Alias BACKUPS = /usr/bin/tar,/usr/bin/rsync,/usr/bin/dump
+User_Alias BOPS = john, bill, sarah, %wheel
+BOPS ALL = (ALL) NOPASSWD:BACKUPS
+```
+
+####`sudoedit`
+
+`sudoedit` = `sudo -e`
+
+要使用sudoedit，sudoers中的条目应该是，例如，这样的东西：
+
+```shell
+%newsudo ALL = sudoedit /path/to/file
+```
+
+而“newsudo”组的一部分用户将能够通过运行以下命令来编辑该文件：
+
+sudoedit /path/to/file
+
+那么这个命令会做什么呢，它会首先创建你要编辑的文件的临时副本。 然后，命令将搜索SUDO_EDITOR，VISUAL和EDITOR环境变量（按此顺序），以确定应调用哪个编辑器来打开刚刚创建的临时副本。 用户完成修改工作后，更改将复制回原始文件。
+
+
+
+# ACL
+
+Access Control List, ACL可以针对单一的文件或目录来进行r,w,x的权限规范。
+
+`getfacl` `setfacl`
+
+```shell
+gorkr@gorkr-PC:~/test$ ll
+总用量 0
+-rw-r--r-- 1 gorkr gorkr 0 1月  25 13:50 ms
+gorkr@gorkr-PC:~/test$ setfacl -m u:gorkr:rx ms
+#等同于u::rx , ::为空，文件的owner
+gorkr@gorkr-PC:~/test$ ll
+总用量 0
+-rw-r-xr--+ 1 gorkr gorkr 0 1月  25 13:50 ms
+gorkr@gorkr-PC:~/test$ getfacl ms
+# file: ms
+# owner: gorkr
+# group: gorkr
+user::rw-
+user:gorkr:r-x
+group::r--
+mask::r-x
+other::r--
+gorkr@gorkr-PC:~/test$ mkdir childtest
+gorkr@gorkr-PC:~/test$ ll
+总用量 4
+drwxr-xr-x  2 gorkr gorkr 4096 1月  25 17:05 childtest
+-rw-r-xr--+ 1 gorkr gorkr    0 1月  25 13:50 ms
+#说明acl会继承
+```
+
+同理可设置`g`组权限 ，`m`设置mask。
+
+**mask**的意义是，用户或组设定的权限必须要存在于mask才能生效。
+
+`setfal -b 档名` 取消全部acl, `-x`取消单一acl。
+
+acl拥有继承的属性。
+
+
+
+# 进程
+
+程序存放在实体磁盘中，通过用户命令触发。触发后会加载到内存中成为一个个体，就是**进程**。
+
+系统透过PID来判断该process是否有权限进行工作。又这个进程衍生出来的子进程，一般也会沿用相关权限。
+
+##### 进程状态：
+
+- running: has cpu time
+- runnable: waits for cpu time
+- sleeping:  does nothing/ waits for something
+- zombie/defunt
+
+##### fork and exec: 进程呼叫的流程
+
+linux的进程呼叫通常成为`fork-and-exec`的流程。进程都会由父进程以复制(fork)的方式产生一个一模一样的子进程，然后被复制出来的子进程再以exec的方式来执行实际要进行的程序，最终成为一个真正的子进程。(期间会产生一个PPID)
+
+如果父进程die, 子进程也die。
+
+##### zombie
+
+一个进程已经执行完毕，或者因故应该要终止了，但该进程的父进程却无法完整的将该进程结束掉，而造成这个进程一直存在于内存中，就成为zombie。想要杀掉zombie，就要找到并kill父进程。
+
+##### Daemon
+
+常住于内存中的进程通常都是负责一些系统所提供的功能以服务用户的各项活动，因此这些常驻程序就被称为: Daemon 。
+
+
+
+`pgrep` pgrep 是通过程序的名字来查询进程的工具，一般是用来判断程序是否正在运行。 `pkill` 同理。
+
+ `kill -l` 列出所有的signal.
+
+| 数字 | 描述 | 详细                      |
+| ---- | ---- | -------------------------------------- |
+| 15   | SIGTERM | 尝试以正常方式终止一项工作   |
+| 9    | SIGKILL | 立即强制删除一个工作                   |
+| 2    |      | Ctrl+c                                 |
+| 1    | SIGHUP | 重新读取一次参数的配置文件(类似reload) |
+
+
+
+# 任务排程
+
+`crontab` 和 `at`， 配置文件位于`/var/spool/(cron|at)`下。
+
+需要在`/etc`下存在cron.allow,cron.deny, at.allow, at.deny.
+
+- allow文件存在时，只有allow中列出的用户允许使用排程，同时deny文件将不会被解析。
+- allow文件不存在时，只有deny文件中被列出的用户不能使用盘排程。
+- 都不存在时，只允许root。

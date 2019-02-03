@@ -1,12 +1,12 @@
-#linux前瞻
+# linux前瞻
 
-####POSIX
+#### POSIX
 
 POSIX表示可移植操作系统接口（Portable Operating System Interface of UNIX，缩写为 POSIX ），POSIX标准定义了操作系统应该为应用程序提供的接口标准。
 
 POSIX标准意在期望获得[源代码](https://baike.baidu.com/item/%E6%BA%90%E4%BB%A3%E7%A0%81/3969)级别的[软件可移植性](https://baike.baidu.com/item/%E8%BD%AF%E4%BB%B6%E5%8F%AF%E7%A7%BB%E6%A4%8D%E6%80%A7/8320795)。换句话说，为一个POSIX兼容的操作系统编写的程序，应该可以在任何其它的POSIX操作系统（即使是来自另一个厂商）上编译执行。
 
-####基本理念
+#### 基本理念
 
 **everything is a file, if not, it's a process.** 
 
@@ -580,12 +580,12 @@ linux的进程呼叫通常成为`fork-and-exec`的流程。进程都会由父进
 
  `kill -l` 列出所有的signal.
 
-| 数字 | 描述 | 详细                      |
-| ---- | ---- | -------------------------------------- |
-| 15   | SIGTERM | 尝试以正常方式终止一项工作   |
+| 数字 | 描述    | 详细                                   |
+| ---- | ------- | -------------------------------------- |
+| 15   | SIGTERM | 尝试以正常方式终止一项工作             |
 | 9    | SIGKILL | 立即强制删除一个工作                   |
-| 2    |      | Ctrl+c                                 |
-| 1    | SIGHUP | 重新读取一次参数的配置文件(类似reload) |
+| 2    |         | Ctrl+c                                 |
+| 1    | SIGHUP  | 重新读取一次参数的配置文件(类似reload) |
 
 
 
@@ -598,3 +598,4 @@ linux的进程呼叫通常成为`fork-and-exec`的流程。进程都会由父进
 - allow文件存在时，只有allow中列出的用户允许使用排程，同时deny文件将不会被解析。
 - allow文件不存在时，只有deny文件中被列出的用户不能使用盘排程。
 - 都不存在时，只允许root。
+

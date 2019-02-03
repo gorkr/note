@@ -644,3 +644,99 @@ gorkr@gorkr-PC:~$ groups ninggou
 ninggou : ninggou sudo
 ```
 
+#### source
+
+```shell
+source FileName
+```
+
+在当前bash环境下读取并执行FileName中的命令。
+
+*注：该命令通常用命令“.”来替代。*
+
+```shell
+source filename 
+. filename（中间有空格）
+```
+
+
+
+#### 设置开机自启
+
+第三种方式  设置程序的.desktop文件
+通过将应用程序的.desktop文件放在自启动目录下，那么当用户登陆桌面环境时，就会自动启动这些应用程序。
+
+linux中自启动目录是\$XDG_CONFIG_DIRS/autostart和$XDG_CONFIG_HOME/autostart这两个，可以打印看一下，有的可能只有其中一个。
+
+把设置好的.desktop放在这两个目录下，那么指定的程序就会在桌面环境启动时启动，当两个自启动目录同时存在相同的文件时，只会运行其中一个（$XDG_CONFIG_HOME）。
+
+program.desktop文件写法：
+
+```
+
+
+[Desktop Entry]
+
+Name=program
+
+Exec=/usr/bin/program
+
+Type=Application
+
+Comment=my program
+
+```
+
+只需要有这关键的几行就可以了，Exec的路径一定要正确。.desktop文件还有其他定制项，可参考其他文章。
+
+
+
+# 远程部署实录
+
+```
+# 在 root 用户下运行这条命令创建一个新用户，yangxg 是用户名
+# 因为我叫杨学光，所以我取的用户名是 yangxg
+# 选择一个你喜欢的用户名，不一定非得和我的相同
+root@localhost:~# useradd -m -s /bin/bash yangxg
+
+# 把新创建的用户加入超级权限组
+root@localhost:~# usermod -a -G sudo yangxg
+
+# 为新用户设置密码
+# 注意在输密码的时候不会有字符显示，不要以为键盘坏了，正常输入即可
+root@localhost:~# passwd yangxg
+
+# 切换到创建的新用户
+root@localhost:~# su - yangxg
+
+# 切换成功，@符号前面已经是新用户名而不是 root 了
+yangxg@localhost:~$
+```
+
+
+## 禁用笔记本键盘
+
+```shell
+gorkr@gorkr-PC:~$ xinput --list
+⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
+⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
+⎜   ↳ MOSART Semi. 2.4G INPUT DEVICE          	id=13	[slave  pointer  (2)]
+⎜   ↳ HID 04b4:2009                           	id=15	[slave  pointer  (2)]
+⎜   ↳ SynPS/2 Synaptics TouchPad              	id=17	[slave  pointer  (2)]
+⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
+    ↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
+    ↳ Power Button                            	id=6	[slave  keyboard (3)]
+    ↳ Video Bus                               	id=7	[slave  keyboard (3)]
+    ↳ Video Bus                               	id=8	[slave  keyboard (3)]
+    ↳ Power Button                            	id=9	[slave  keyboard (3)]
+    ↳ Sleep Button                            	id=10	[slave  keyboard (3)]
+    ↳ HD Webcam                               	id=11	[slave  keyboard (3)]
+    ↳ MOSART Semi. 2.4G INPUT DEVICE          	id=12	[slave  keyboard (3)]
+    ↳ HID 04b4:2009                           	id=14	[slave  keyboard (3)]
+    ↳ AT Translated Set 2 keyboard            	id=16	[slave  keyboard (3)]
+    ↳ MOSART Semi. 2.4G INPUT DEVICE          	id=18	[slave  keyboard (3)]
+    ↳ HID 04b4:2009                           	id=19	[slave  keyboard (3)]
+gorkr@gorkr-PC:~$ xinput set-prop 16 "Device Enabled" 0
+
+```
+

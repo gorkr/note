@@ -644,7 +644,7 @@ gorkr@gorkr-PC:~$ groups ninggou
 ninggou : ninggou sudo
 ```
 
-#### source
+# source
 
 ```shell
 source FileName
@@ -661,12 +661,12 @@ source filename
 
 
 
-#### 设置开机自启
+# ～～设置开机自启～～
 
 第三种方式  设置程序的.desktop文件
 通过将应用程序的.desktop文件放在自启动目录下，那么当用户登陆桌面环境时，就会自动启动这些应用程序。
 
-linux中自启动目录是\$XDG_CONFIG_DIRS/autostart和$XDG_CONFIG_HOME/autostart这两个，可以打印看一下，有的可能只有其中一个。
+linux中自启动目录是\$XDG_CONFIG_DIRS/autostart和$？XDG_CONFIG_HOME/autostart这两个，可以打印看一下，有的可能只有其中一个。
 
 把设置好的.desktop放在这两个目录下，那么指定的程序就会在桌面环境启动时启动，当两个自启动目录同时存在相同的文件时，只会运行其中一个（$XDG_CONFIG_HOME）。
 
@@ -714,7 +714,7 @@ yangxg@localhost:~$
 ```
 
 
-## 禁用笔记本键盘
+# 禁用笔记本键盘
 
 ```shell
 gorkr@gorkr-PC:~$ xinput --list

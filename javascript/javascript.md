@@ -30,7 +30,7 @@ JavaScript 的核心语法部分相当精简，只包括两个部分：基本的
 语句（statement）是为了完成某种任务而进行的操作。
 
 ```js
-`var a = 1 + 3;  //一行赋值语句。
+var a = 1 + 3;  //一行赋值语句。
 ```
 
 `1 + 3`叫做表达式（expression），指一个为了得到返回值的计算式。表达式不需要分号结尾。一旦在表达式后面添加分号，则 JavaScript 引擎就将表达式视为语句。
@@ -536,3 +536,413 @@ with(obj1.obj2.obj3) {
 var temp = obj1.obj2.obj3;
 console.log(temp.p1 + temp.p2);
 ```
+
+
+## 函数
+
+### 概述
+
+- function 命令
+
+  ```js
+  function print(s) {
+    console.log(s);
+  }
+  ```
+
+- 函数表达式， 将一个匿名函数赋值给变量。
+
+  ```js
+  var print = function(s) {
+    console.log(s);
+  };
+  var f = function f() {};
+  ```
+
+- Function构造函数， 用于创建对象。
+
+  ```js
+  var add = new Function(
+    'x',
+    'y',
+    'return x + y'
+  );
+  
+  // 等同于
+  function add(x, y) {
+    return x + y;
+  }
+  ```
+
+  `Function`构造函数接受三个参数，除了最后一个参数是`add`函数的“函数体”，其他参数都是`add`函数的参数。
+
+
+
+如果同一个函数被多次声明，后面的声明就会覆盖前面的声明。
+
+
+
+####函数是第一等公民
+
+JavaScript 语言将函数看作一种值，与其它值（数值、字符串、布尔值等等）地位相同。凡是可以使用值的地方，就能使用函数。由于函数与其他数据类型地位平等，所以在 JavaScript 语言中又称函数为第一等公民。
+
+```js
+function add(x, y) {
+  return x + y;
+}
+
+// 将函数赋值给一个变量
+var operator = add;
+
+// 将函数作为参数和返回值
+function a(op){
+  return op;
+}
+a(add)(1, 1)
+// 2
+```
+
+
+
+#### 函数名的提升
+
+JavaScript 引擎将函数名视同变量名，所以采用`function`命令**声明**函数时，整个函数会像变量声明一样，被提升到代码头部。所以，下面的代码不会报错。
+
+```js
+f();
+
+function f() {}
+```
+
+
+
+### 函数的属性和方法
+
+- 函数的`name`属性返回函数的名字。
+
+-　函数的`length`属性返回函数预期传入的参数个数。
+
+-　函数的`toString`方法返回一个字符串，内容是函数的源码。
+
+  利用这一点，可以变相实现多行字符串。
+
+  ```js
+  var multiline = function (fn) {
+    var arr = fn.toString().split('\n');
+    return arr.slice(1, arr.length - 1).join('\n');
+  };
+  
+  function f() {/*
+    这是一个
+    多行注释
+  */}
+  
+  multiline(f);
+  // " 这是一个
+  //   多行注释"
+  ```
+
+
+
+### 函数作用域
+
+作用域（scope）指的是变量存在的范围。
+
+对于`var`命令来说，局部变量只能在函数内部声明，在其他区块中声明，一律都是全局变量。
+
+```
+if (true) {
+  var x = 5;
+}
+console.log(x);  // 5
+```
+
+上面代码中，变量`x`在条件判断区块之中声明，结果就是一个全局变量。
+
+
+
+与全局作用域一样，函数作用域内部也会产生“变量提升”现象。`var`命令声明的变量，不管在什么位置，变量声明都会被提升到函数体的头部。
+
+```js
+function foo(x) {
+  if (x > 100) {
+    var tmp = x - 100;
+  }
+}
+
+// 等同于
+function foo(x) {
+  var tmp;
+  if (x > 100) {
+    tmp = x - 100;
+  };
+}
+```
+
+
+
+函数本身也是一个值，也有自己的作用域。它的作用域与变量一样，就是**其声明时所在的作用域**，与其运行时所在的作用域无关。
+
+```js
+var a = 1;
+var x = function () {
+  console.log(a);
+};
+
+function f() {
+  var a = 2;
+  x();
+}
+
+f() // 1
+```
+
+
+
+### 参数
+
+运行时无论提供多少个参数（或者不提供参数），JavaScript 都不会报错。
+
+```js
+function f(a, b) {
+  return a;
+}
+
+f(1, 2, 3) // 1
+f(1) // 1
+f() // undefined
+
+f.length // 2
+```
+
+
+
+函数参数如果是原始类型的值（数值、字符串、布尔值），传递方式是传值传递（passes by value）。但是，如果函数参数是复合类型的值（数组、对象、其他函数），传递方式是传址传递（pass by reference）。
+
+```js
+var obj = { p: 1 };
+
+function f(o) {
+  o.p = 2;
+}
+f(obj);
+
+obj.p // 2
+```
+
+如果函数内部修改的，不是参数对象的某个属性，而是替换掉整个参数，这时不会影响到原始值。
+
+ 
+
+如果有同名的参数，则取最后出现的那个值。
+
+```js
+function f(a, a) {
+  console.log(a);
+}
+
+f(1, 2) // 2
+```
+
+
+
+```js
+function f(a, a) {
+  console.log(a);
+}
+
+f(1) // undefined
+```
+
+调用函数`f`的时候，没有提供第二个参数，`a`的取值就变成了`undefined`。这时，如果要获得第一个`a`的值，可以使用`arguments`对象。
+
+```js
+function f(a, a) {
+  console.log(arguments[0]);
+}
+
+f(1) // 1
+```
+
+
+
+`arguments`对象包含了函数运行时的所有参数。正常模式下，`arguments`对象可以在运行时修改。严格模式下，`arguments`对象与函数参数不具有联动关系。也就是说，修改`arguments`对象不会影响到实际的函数参数。通过`arguments`对象的`length`属性，可以判断函数调用时到底带几个参数。
+
+`arguments`对象使用数组方法，真正的解决方法是将`arguments`转为真正的数组。下面是两种常用的转换方法：`slice`方法和逐一填入新数组。
+
+```js
+var args = Array.prototype.slice.call(arguments);
+
+// 或者
+var args = [];
+for (var i = 0; i < arguments.length; i++) {
+  args.push(arguments[i]);
+}
+```
+
+
+
+###闭包和立即调用的函数表达式
+
+闭包就是函数`f2`，即能够读取其他函数内部变量的函数。闭包最大的特点，就是它可以“记住”诞生的环境，比如`f2`记住了它诞生的环境`f1`，所以从`f2`可以得到`f1`的内部变量。在本质上，闭包就是将函数内部和函数外部连接起来的一座桥梁。
+
+```js
+function f1() {
+  var n = 999;
+  function f2() {
+    console.log(n);
+  }
+  return f2;
+}
+
+var result = f1();
+result(); // 999
+```
+
+- 一个是可以读取函数内部的变量。
+
+- 就是让这些变量始终保持在内存中，即闭包可以使得它诞生环境一直存在。
+
+  ```js
+  function createIncrementor(start) {
+    return function () {
+      return start++;
+    };
+  }
+  
+  var inc = createIncrementor(5);
+  
+  inc() // 5
+  inc() // 6
+  inc() // 7
+  ```
+
+  原因就在于`inc`始终在内存中，而`inc`的存在依赖于`createIncrementor`，因此也始终在内存中，不会在调用结束后，被垃圾回收机制回收。
+
+- 闭包的另一个用处，是封装对象的私有属性和私有方法。
+
+  ```js
+  function Person(name) {
+    var _age;
+    function setAge(n) {
+      _age = n;
+    }
+    function getAge() {
+      return _age;
+    }
+  
+    return {
+      name: name,
+      getAge: getAge,
+      setAge: setAge
+    };
+  }
+  
+  var p1 = Person('张三');
+  p1.setAge(25);
+  p1.getAge() // 25
+  ```
+
+  上面代码中，函数`Person`的内部变量`_age`，通过闭包`getAge`和`setAge`，变成了返回对象`p1`的私有变量。
+
+
+
+`function`关键字出现在行首，一律解释成语句。
+
+```
+(function(){ /* code */ }());
+// 或者
+(function(){ /* code */ })();
+```
+
+推而广之，任何让解释器以表达式来处理函数定义的方法，都能产生同样的效果。
+
+- 一是不必为函数命名，避免了污染全局变量；
+- 二是 IIFE 内部形成了一个单独的作用域，可以封装一些外部无法读取的私有变量。
+
+
+
+###eval命令
+
+`eval`命令接受一个字符串作为参数，并将这个字符串当作语句执行。
+
+`eval`没有自己的作用域，都在当前作用域内执行，因此可能会修改当前作用域的变量的值，造成安全问题。
+
+```js
+var a = 1;
+eval('a = 2');
+
+a // 2
+```
+
+
+
+## 数组
+
+任何类型的数据，都可以放入数组。
+
+```js
+var arr = [
+  {a: 1},
+  [1, 2, 3],
+  function() {return true;}
+];
+
+arr[0] // Object {a: 1}
+arr[1] // [1, 2, 3]
+arr[2] // function (){return true;}
+```
+
+本质上，数组属于一种特殊的对象。`typeof`运算符会返回数组的类型是`object`。
+
+JavaScript 语言规定，对象的**键名一律为字符串**，所以，数组的键名其实也是字符串。之所以可以用数值读取，是因为非字符串的键名会被转为字符串。
+
+数组的`length`属性，返回数组的成员数量。该属性是一个动态的值。
+
+清空数组的一个有效方法，就是将`length`属性设为0。
+
+
+
+**由于数组本质上是一种对象，所以可以为数组添加属性，但是这不影响`length`属性的值。**
+
+
+
+检查某个**键名**是否存在的运算符`in`，适用于对象，也适用于数组。
+
+
+
+`for...in`循环不仅可以遍历对象，也可以遍历数组，毕竟数组只是一种特殊对象。但是，`for...in`不仅会遍历数组所有的数字键，还会遍历非数字键，即为数组添加的属性。
+
+不推荐使用`for...in`遍历数组。
+
+数组的遍历可以考虑使用`for`循环或`while`循环。
+
+
+
+使用`delete`命令删除一个数组成员，会形成**空位**，并且不会影响`length`属性。
+
+```js
+var a = [1, 2, 3];
+delete a[1];
+
+a[1] // undefined
+a.length // 3
+```
+
+
+
+典型的“类似数组的对象”是函数的`arguments`对象，以及大多数 DOM 元素集，还有字符串。
+
+数组的`slice`方法可以将“类似数组的对象”变成真正的数组。
+
+```js
+// arguments对象
+function args() { return arguments }
+var arrayLike = args('a', 'b');
+
+arrayLike[0] // 'a'
+arrayLike.length // 2
+arrayLike instanceof Array // false
+var arr = Array.prototype.slice.call(arrayLike);
+```
+

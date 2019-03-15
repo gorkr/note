@@ -85,9 +85,25 @@ Linux的Ext文件系统是如何与磁盘内存产生对应的呢？我们知道
 因此对于一个文件来说，它的inode号就类似于id的作用，用于存放关于该文件的一些基本信息。
 
 **硬链接（hard link）**
+
+A *hard link* is merely an additional name for an existing file on Linux.目录不能创造硬链接。
+
+```shell
+gorkr@gorkr-PC:~$ ln errors.log hard_erro
+```
+
+
+
 硬链接实际上是一个指针，指向源文件的inode，系统并不为它重新分配inode。硬连接不会建产新的inode，硬连接不管有多少个，都指向的是同一个inode节点，只是新建一个hard link会把结点连接数增加，只要结点的连接数不是0，文件就一直存在，不管你删除的是源文件还是连接的文件。只要有一个存在，文件就存在（其实就是引用计数的概念)。当你修改源文件或者连接文件任何一个的时候，其他的文件都会做同步的修改。
 
 **软链接（soft link）**
+
+```
+ln -s example1 softlink1
+```
+
+
+
 软链接最直观的解释：相当于Windows系统的快捷方式，是一个独立文件（拥有独立的inode,与源文件inode无关），该文件的内容是源文件的路径指针，通过该链接可以访问到源文件。所以删除软链接文件对源文件无影响，但是删除源文件，软链接文件就会找不到要指向的文件（可以类比Windows上快捷方式，你点击快捷方式可以访问某个文件，但是删除快捷方式，对源文件无任何影响）。
 
 
@@ -310,6 +326,13 @@ $ echo "2018       06  01" |tr -s ' ' '-' #输出2018-06-01
 $ echo "2018abcdefdf06zzz01" |tr -d -c '[0-9]' #输出20180601
 ```
 
+```
+tr -d [0-9] < file.txt
+tr [a-z] [A-Z] < text.txt
+```
+
+
+
 #### 搜索
 
 `find` 命令 和 `locate`,`updatedb`。  
@@ -327,12 +350,15 @@ $ echo "2018abcdefdf06zzz01" |tr -d -c '[0-9]' #输出20180601
 
 ```
 -v: verbose mode
--t: 列出，但不解包
+-t: 列出
 -x: 解包
 -c: 打包
 -z: to compress or decompress *.gz
 -j: to compress or decompress *.bz2  #就算不添加zj参数，tar也会自动执行解压缩。
 -f: 指定对象
+
+tar -tvzf archive.tar.gz
+tar -tf archive.tar.gz
 ```
 
 #### `Gzip` and `bzip2`
@@ -346,6 +372,10 @@ bz2压缩率更高，gz压缩速率更快。
 ```shell
 gzip file
 bzip2 file
+
+tar -cvzf d.tar.gz directory 
+tar -cvzf d.tar.gz d1 d2 d3 f1 f3
+tar -cvjf d.tar.gz2 directory 
 ```
 
 解压：
@@ -355,6 +385,9 @@ gzip -d file.gz
 gunzip file.gz
 bzip2 -d file.bz2
 bunzip2 file.bz2
+
+tar -xvjf archive.tar.bz2
+tar -xf archive.tar.bz2
 ```
 
 #### `(bz|z)(cat|less|more)`命令
@@ -363,6 +396,38 @@ bunzip2 file.bz2
 zcat /proc/config.gz
 bzcat file.bz2
 ```
+
+
+
+## **cpio命令**
+
+`cpio`命令主要是用来建立或者还原备份档的工具程序，`cpio`命令可以复制文件到归档包中，或者从归档包中复制文件。
+
+### 实例
+
+**将/etc下的所有普通文件都备份到/opt/etc.cpio，使用以下命令：**
+
+> find /etc –type f | cpio –ocvB >/opt/etc.cpio
+
+**将系统上所有资料备份到磁带机内，使用以下命令： **
+
+> find / -print | cpio -covB > /dev/st0
+
+这里的`/dev/st0`是磁带的设备名，代表SCSI磁带机。
+
+**查看上例磁带机上备份的文件，使用以下命令： **
+
+> cpio -icdvt < /dev/st0 > /tmp/st_content
+
+有时可能因为备份的文件过多，一个屏幕无法显示完毕，此时我们利用下面命令，让磁带机的文件信息输出到文件。
+
+**将示例1中的备份包还原到相应的位置，如果有相同文件进行覆盖，使用以下命令：**
+
+> cpio –icduv < /opt/etc.cpio
+
+注意，`cpio`恢复的路径，如果`cpio`在打包备份的时候用的是绝对路径，那么在恢复的时候会自动恢复到这些绝对路径下，本例就会将备份文件全部还原到`/etc`路径下对应的目录中。同理，如果在打包备份用的是相对路径，还原时也将恢复到相对路径下。
+
+通过上面的示例，可以看出，`cpio`无法直接读取文件，它需要每个文件或者目录的完整路径名才能识别读取，而`find`命令的输出刚好做到了这点，因此，`cpio`命令一般和find命令配合使用。其实，上面的示例我们已经看到了它们的组合用法。
 
 
 
@@ -575,6 +640,8 @@ linux的进程呼叫通常成为`fork-and-exec`的流程。进程都会由父进
 常住于内存中的进程通常都是负责一些系统所提供的功能以服务用户的各项活动，因此这些常驻程序就被称为: Daemon 。
 
 
+
+Signals are used to notify a process or thread of a particular event. 
 
 `pgrep` pgrep 是通过程序的名字来查询进程的工具，一般是用来判断程序是否正在运行。 `pkill` 同理。
 

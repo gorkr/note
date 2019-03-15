@@ -946,3 +946,77 @@ arrayLike instanceof Array // false
 var arr = Array.prototype.slice.call(arrayLike);
 ```
 
+
+
+# 运算符
+
+## 算术运算符
+
+如果运算子是对象，必须先转成原始类型的值，然后再相加。
+
+```js
+var obj = { p: 1 };
+obj + 2 // "[object Object]2"
+```
+
+对象转成原始类型的值，规则如下。
+
+首先，自动调用对象的`valueOf`方法。
+
+```js
+var obj = { p: 1 };
+obj.valueOf() // { p: 1 }
+```
+
+一般来说，对象的`valueOf`方法总是返回对象自身，这时再自动调用对象的`toString`方法，将其转为字符串。
+
+```js
+var obj = { p: 1 };
+obj.valueOf().toString() // "[object Object]"
+```
+
+知道了这个规则以后，就可以自己定义`valueOf`方法或`toString`方法，得到想要的结果。
+
+
+
+`%`运算结果的正负号由第一个运算子的正负号决定。
+
+
+
+```js
++true // 1
++[] // 0
++{} // NaN
+```
+
+
+
+## 比较运算符
+
+如果运算子是对象，会转为原始类型的值，再进行比较。
+
+
+
+# 标准库
+
+**（1）Object对象本身的方法**
+
+所谓“本身的方法”就是直接定义在`Object`对象的方法。
+
+**（2）Object的实例方法**
+
+所谓实例方法就是定义在`Object`原型对象`Object.prototype`上的方法。它可以被`Object`实例直接使用。
+
+```js
+Object.prototype.print = function () {
+  console.log(this);
+};
+
+var obj = new Object();
+obj.print() // Object
+```
+
+
+
+# 面向对象
+

@@ -26,7 +26,7 @@ rpm包的命名规则：
 
 
 
-```
+```sh
 rpm -ivh *****.rpm  # 安装rpm包
     -U  # 升级
     -e  # 卸载
@@ -38,7 +38,7 @@ rpm -ivh *****.rpm  # 安装rpm包
 
 rpm包默认安装路径
 
-```
+```sh
 /etc/
 /usr/bin
 /usr/lib
@@ -48,13 +48,13 @@ rpm包默认安装路径
 
 源码安装默认位置
 
-```
+```sh
 /usr/local/软件名/
 ```
 
 位置不同带来的影响：
 
-```
+```sh
 rpm:
 /etc/rc.d/init.d/httpd start
 service httpd start
@@ -67,7 +67,7 @@ source code:
 
 源码安装方法
 
-```
+```sh
 /usr/local/src  # 源码文件存储位置
 /usr/local  # 软件包安装位置
 
@@ -78,7 +78,7 @@ INSTALL 安装说明。  README  使用说明。
 
 2. ./configure 软件配置与检查
 
-   ```
+   ```sh
    ./configure --prefix=directory  # prefix指定安装路径
    ```
 
@@ -109,6 +109,93 @@ echo -e "\e[1;31m abcd \e[0m"  # 红色输出abcd
   ```
 
 `dos2unix`命令将windos下编写的script转换为unix可读取的格式. (unix和windows中回车符表示不同)
+
+
+
+历史命令
+
+`~/.bash_history`文件保存历史命令, 默认保存2000条, 可以在`/etc/profile`里修改`HISTORYSIZE`变量.
+
+
+
+命令别名
+
+```sh
+alias vi='vim'  # 临时生效
+```
+
+优先级: 路径>别名>内建>PATH
+
+
+
+常用快捷键
+
+| 操作     | 效果        | 操作     | 效果 |
+| -------- | ----------- | -------- | ---- |
+| ctrl + u | 删除/剪切行 | ctrl + l | 清屏 |
+| ctrl + y | 粘贴        | ctrl + r | 搜索 |
+| ctrl + d | 退出终端    |          |      |
+
+
+
+重定向
+
+```sh
+ls >> file 2>&!
+ls >> file1 2>> file2
+wc < file
+```
+
+```sh
+command1; command2;  # 顺序执行
+command1 && command2  # 1执行,2执行; 1不执行,2不执行.
+command1 || commmand2  # 1执行,2不执行; 1不执行,2执行.
+
+./configure && make && make install
+```
+
+
+
+符号
+
+| 符号      | 意义                           |
+| --------- | ------------------------------ |
+| ''        | 其中所有特殊符号都无特殊意义.  |
+| ""        | 除了'$','`','\'外都无特殊意义. |
+| `` 和 $() | 执行命令  如: abc=$(date) .    |
+| $         | 调用变量值                     |
+
+
+
+用户自定义变量
+
+- bash中变量的默认类型都为字符串类型.
+- `${变量}123` 在变量后追加123.
+- `set` 和 `unset`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

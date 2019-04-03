@@ -4,7 +4,7 @@
 
 `service keyboard-setup restart`
 
-//////ip a  //显示ip配置
+//////ip a  //显示ip配置+
 
 ##### ssh 远程链接服务器：
 

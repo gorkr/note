@@ -186,3 +186,8 @@ Switch(config-if)#
 
 ![IOS命令约定](IOS命令约定.png)
 
+上下文帮助 -- **在任何时候输入`?`**
+
+命令和关键字可缩写为可唯一确定该命令或关键字的最短字符数。例如，**configure** 命令可缩写为 **conf**，因为 **configure** 是唯一一个以 **conf** 开头的命令。不能缩写为 **con**，因为以 **con** 开头的命令不止一个。关键字也可缩写。
+![热键](H:\note had gited\CCNA\CCNA1\热键.png)
+

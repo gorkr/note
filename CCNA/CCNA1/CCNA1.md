@@ -1,5 +1,30 @@
 # 探索网络
 
+
+
+
+
+| 单词            | 释意   | 术语                | 释意     |
+| --------------- | ------ | ------------------- | -------- |
+| scenario        | 方案   | scalable            | 可拓展的 |
+| dish or antenna | 天线   | modular             | 模块化的 |
+| geographic      | 地理的 | MAN(Metro Ethernet) | 城域网   |
+|                 |        | intermediary        | 中间设备 |
+|                 |        | congestion          | 拥堵     |
+|                 |        | transfer            | 网络介质 |
+
+##错题:
+
+A converged network unifies different network services, such as streaming video, voice, and data, on a single platform and within a single infrastructure.
+
+内联网
+
+Intranets connect LANs and WANs that should only be accessible by internal employees, whereas an extranet allows organizations to do business directly with other external organizations by allowing them access to part of the internal network.
+
+
+
+
+
 思科将其称为以人为本的网络。以人为本的网络重点关注 Internet 和网络对人们和企业的影响
 
 - **对等 (P2P) 文件共享** – 对等文件共享使人们可以彼此共享文件，而不必存储并从中央服务器下载。用户安装 P2P 软件即可加入 P2P 网络。P2P 文件共享尚未得到所有人的认可。很多人担心这会违反版权保护资料的相关法律。
@@ -56,7 +81,7 @@
 
 术语**“网络架构”**是指支持基础设施的技术以及通过该网络传输数据的编程服务及规则或协议底层架构必须解决以下四个基本特性才能满足用户的期望
 
-- 容错能力
+- 容错能力(fault tolerance)
 
   网络依赖于消息的源地址与目的地址之间的多条路径。如果一条路径失败，消息可以立即通过不同的链路发送。有多条路径到达目的地被称为冗余。
 
@@ -66,7 +91,7 @@
 
 - 可扩展性
 
-  可以增加的用户和整个网络连接到internet而不降低现有用户的性能。
+  可以增加的用户和整个网络连接到internet而不降低现有用户的性能。模块化是实现方法。
 
 - 服务质量 (QoS)
 
@@ -85,6 +110,8 @@
 ## 1.4网络趋势
 
 BYOD 是指最终用户可以使用个人工具通过企业或园区网络访问信息和相互通信。
+
+Wireless Internet Service Providers (WISPs) are typically found in rural areas where DSL or cable access is not available. A dish or antenna on the property of the subscriber connects wirelessly to a WISP transmitter, eliminating the need for physical cabling outside the building. 
 
 **云计算**是改变我们访问和存储数据的方法的另一个全球趋势。云计算使我们可以在 Internet 上存储个人文件，甚至可以在服务器上备份整个硬盘驱动器。使用云可以访问文字处理和图片编辑等应用程序。
 
@@ -191,3 +218,155 @@ Switch(config-if)#
 命令和关键字可缩写为可唯一确定该命令或关键字的最短字符数。例如，**configure** 命令可缩写为 **conf**，因为 **configure** 是唯一一个以 **conf** 开头的命令。不能缩写为 **con**，因为以 **con** 开头的命令不止一个。关键字也可缩写。
 ![热键](H:\note had gited\CCNA\CCNA1\热键.png)
 
+
+
+## 2.2基础配置
+
+**- 主机名**
+
+在配置网络设备时，第一步是配置唯一的设备名称或主机名。主机名显示在 CLI 提示符中，可用于设备之间的各种身份验证过程，并且会用于拓扑图。IOS 设备中所用的主机名会保留字母的大小写状态。
+
+```bash
+Router#configure terminal 
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname SW-Floor-1
+SW-Floor-1(config)#no hos
+SW-Floor-1(config)#no hostname   // 删除全局配置
+Router(config)#
+```
+
+**- 密码设置**
+
+Cisco IOS 可配置为使用分层模式密码允许对网络设备拥有不同的访问权限。也可对telnet设置密码。
+
+要保护特权 EXEC 访问，请使用 **enable secret** *password* 全局配置命令。
+
+入线路控制台配置模式。0 用于代表第一个（而且在大多数情况下是唯一的一个）控制台接口。接下来，使用 **password** *password* 命令指定用户 EXEC 模式密码。
+
+请使用 **line vty 0 15** 全局配置命令进入线路 VTY 模式，如图 3 所示。许多思科交换机支持第 0 到 15 的 16 条 VTY 线路。接下来，使用 **password** *password* 命令指定 VTY 密码。最后，使用 **login** 命令启用 VTY 访问。
+
+```bash
+Switch>enable
+Switch#config termi
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#enable secret class  // 这里用enable secret
+Switch(config)#exit
+
+Switch(config)#line console 0
+Switch(config-line)#password cisco
+Switch(config-line)#login   // 使用login启用密码访问
+
+Switch(config)#line vty 0 15
+Switch(config-line)#password cisco
+Switch(config-line)#login
+```
+
+
+
+要加密密码，请使用 `**service password-encryption**` 全局配置命令。该命令对所有未加密的密码进行弱加密。这种加密仅适用于配置文件中的密码，而不适用于通过网络发送的密码。此命令的用途在于防止未经授权的人员查看配置文件中的密码。
+
+```bash
+输入命令以加密明文密码。
+Switch(config)# service password-encryption
+退出全局配置模式并查看运行的配置。
+Switch(config)# exit
+Switch# show running-config
+!
+<省略部分输出>
+!
+line con 0
+ password 7 094F471A1A0A 
+ login
+!
+line vty 0 4
+ password 7 03095A0F034F38435B49150A1819
+ login
+!
+!
+end
+
+Switch#
+您已成功加密明文密码。
+```
+
+
+
+**- 标语信息**（MOTD)标语 
+
+要在网络设备上创建当日消息标语，请使用`banner motd #the message of the day#` 全局配置命令。命令语法中的“#”称为定界符。它会在消息前后输入。定界符可以是未出现在消息中的任意字符。因此，经常使用“#”之类的字符。命令执行完毕后，系统将向之后访问设备的所有用户显示该标语，直到该标语被删除为止。
+
+```bash
+Router(config)#banner motd #test#
+Router(config)#exit
+```
+
+
+
+**- 保存配置文件**
+
+有两种系统文件用于存储设备配置：
+
+- **启动配置** - 该文件存储在非易失性随机访问存储器 (NVRAM) 中，包含设备在启动或重启时将会使用的所有命令。设备断电后，NVRAM 中的内容不会丢失。
+
+- **运行配置** - 该文件存储在随机访问存储器 (RAM) 中，反映当前配置。修改运行配置会立即影响思科设备的运行。RAM 是易失性存储器。如果设备断电或重新启动，则它会丢失所有内容。
+
+如图所示，使用 **show running-config** 特权 EXEC 模式命令查看运行配置文件。要查看启动配置文件，请使用 **show startup-config** 特权 EXEC 命令。
+
+如果设备断电或重新启动，所有未保存的配置更改都会丢失。要将对运行配置所作的更改保存到启动配置文件中，请使用 **copy running-config startup-config** 特权 EXEC 模式命令。
+
+**- 更改运行配置**
+
+以将设备恢复到之前的配置，或者使用 **reload** 特权 EXEC 模式命令重新加载设备，以恢复启动配置。使用 **reload 命令删除**（其实就是强制关机）未保存的运行配置的缺点是，在一段很短的时间内设备将会离线，导致网络中断。
+
+使用 **erase startup-config** 特权 EXEC 模式命令可删除启动配置。在发出此命令后，交换机将提示您确认。按 **Enter** 键接受。重新加载时，交换机将会加载设备出厂默认的启动配置。
+
+`copy startup-config running-config`
+
+```bash
+dir nvrom:
+```
+
+
+
+**- 将配置存到文本文件**
+
+![putty](putty.png)
+
+- 在终端软件（比如 PuTTY 或 Tera Term）中启用日志记录，并指定名称和文件位置以保存日志文件。图中显示**所有会话输出**都将捕获到指定文件中（即 MySwitchLogs）
+
+- 在特权 EXEC 提示符下执行 **show running-config** 或 **show startup-config** 命令。终端窗口中显示的文本将保存到所选的文件中。
+
+## 2.3地址方案
+
+对于 IPv4 地址，子网掩码也是必要设置。IPv4 子网掩码是将地址的网络部分与主机部分区分开来的 32 位值。子网掩码，与 IPv4 地址相结合，可用于确定设备属于哪个特定子网。
+
+IIP 地址可以分配给设备的物理端口和虚拟接口。虚拟接口表示设备没有关联任何物理硬件。
+
+**- 接口和端口**
+
+internet 上的每条链路不仅需要采用特定的网络介质，而且需要采用特定的网络技术。例如，以太网是当今最常用的局域网 (LAN) 技术。在使用电缆物理连接到网络的最终用户设备、交换设备和其他网络设备上，均可找到以太网端口。
+
+Cisco IOS 第 2 层交换机有物理端口，可用于连接设备。这些端口不支持第 3 层 IP 地址。因此，交换机有一个或多个交换机虚拟接口 (SVI)。这些是虚拟接口，是因为设备上没有任何物理硬件与之关联。软件中会创建 SVI。
+
+借助虚拟接口，即可使用 IPv4 通过网络远程管理交换机。每台交换机的默认配置中都“现成”带有一个 SVI。默认 SVI 是接口 VLAN1。
+
+**注意**：2 层交换机不需要 IP 地址。分配给 SVI 的 IP 地址用于远程访问交换机。2层交换机无需使用 IP 地址来执行其操作。
+
+**- 交换机虚拟接口配置**
+
+要远程访问交换机，SVI 上必须配置 IP 地址和子网掩码。要在交换机上配置 SVI，请使用 **interface vlan 1** 全局配置命令。Vlan 1 并不是一个实际物理接口，而是一个虚拟接口。然后使用 **ip address** *ip-address subnet-mask* 接口配置命令分配 IPv4 地址。最后，使用 **no shutdown** 接口配置命令启用虚拟接口。
+
+```bash
+enable
+configure terminal
+interface vlan 1
+ip address 192.168.1.10 255.255.255.0
+no shutdown  // 默认情况下端口关闭
+exit 
+show run
+show ip interface bried
+```
+
+默认情况下，交换机上的所有交换机端口都分配给 VLAN 1。因此 Interface VLAN 1（一个虚拟接口）可由所有开启的交换机端口访问。
+
+**`show ip interface brief`** 命令的视频演示。此命令适用于检验交换机接口的状况。

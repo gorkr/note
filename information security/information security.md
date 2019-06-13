@@ -1,4 +1,4 @@
-# Network mapping
+# zNetwork mapping
 
 ## 802.1X协议
 
@@ -75,7 +75,7 @@
 
 取消验证洪水攻击：国际上称之为De-authenticationFlood Attack，全称为取消身份验证洪水攻击或验证阻断洪水攻击，通常被简称为Deauth攻击，是无线网络拒绝服务攻击的一种形式。它旨在通过欺骗从AP到客户端单播地址的取消身份验证帧来将客户端转为未关联／未认证的状态。下图是其攻击原理图：
 
-![Deauth洪水攻击](/home/gorkr/Documents/note/information security/20180227161258572)
+![Deauth洪水攻击](20180227161258572)
 
 通过这张图可以很直观地看出，攻击者向整个网络发送了伪造的取消身份验证报文，从而阻断了合法用户和AP之间的连接。当客户端试图与AP重新建立连接时攻击者还在继续向信道中发送取消身份验证帧，这将导致客户端和AP始终无法重连。
 
@@ -107,7 +107,7 @@ airodump-ng wlan0mon  # 选定你想要攻击的对象
     #Data是对应的路由器的在线数据吞吐量，数字越大，数据上传量越大。
     #CH是对应路由器的所在频道
     #ESSID是对应路由器的名称
-airodump-ng --channel 6 --bssid xx:xx:xx  --weite dump wlan0  # 监听指定目标频道，将tarffic写入文件
+airodump-ng --channel 6 --bssid xx:xx:xx  --weite dump wlan0  # 监听指定目标频道，将traffic写入文件
 
 
 aireplay-ng -9 wlan0  # injection测试
@@ -249,7 +249,11 @@ RFC 规定 ICMP 错误消息可以引用一部分引起错误的源数据包。�
 
 **- socket**？？？？？？
 
+网络上的两个程序通过一个双向的通信连接实现数据的交换，这个连接的一端称为一个socket。
 
+提供了一套简单的方式实现网络进程间通信。
+
+![socket](socket.jpg)
 
 
 
@@ -262,10 +266,6 @@ RFC 规定 ICMP 错误消息可以引用一部分引起错误的源数据包。�
 
 
 ![包处理](/home/gorkr/Documents/note/information security/包处理.png)
-
-
-
-
 
 ###nmap识别的端口状态
 
@@ -388,15 +388,128 @@ nmap -O source.supingo.com  # 猜测主机操作系统
 
 
 
+## Vulnerability Scanning
+
+> 漏洞扫描是指基于漏洞数据库，通过扫描等手段对指定的远程或者本地计算机系统的安全脆弱性进行检测，发现可利用漏洞的一种安全检测（渗透攻击）行为。
+>
+> 1.针对网络的扫描器
+>
+> 2.针对主机的扫描器
+>
+> 3.针对数据库的扫描器
+>
+> 
+
+| 术语                                                    | 解释                                                         |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| CVE  “Common Vulnerabilities & Exposures”公共漏洞和暴露 | CVE就好像是一个字典表，为广泛认同的[信息安全](https://baike.baidu.com/item/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/339810)漏洞或者已经暴露出来的弱点给出一个公共的[名称](https://baike.baidu.com/item/%E5%90%8D%E7%A7%B0/6546057)。使用一个共同的名字，可以帮助用户在各自独立的各种漏洞数据库中和漏洞评估[工具](https://baike.baidu.com/item/%E5%B7%A5%E5%85%B7/81891)中共享数据，虽然这些工具很难整合在一起。 如果在一个漏洞报告中[指明](https://baike.baidu.com/item/%E6%8C%87%E6%98%8E/633104)的一个漏洞，如果有CVE名称，你就可以快速地在任何其它CVE兼容的数据库中找到相应修补的信息，解决安全[问题](https://baike.baidu.com/item/%E9%97%AE%E9%A2%98/1067365)。 |
+| OVAL(open Vulnerability and assement language)          | OVAL includes a language used to encode system details, and an assortment of content repositories held throughout the community. standardizes .  is an international, information security, community effort to promote open and publicly available security content, and to standardize the transfer of this information across the entire spectrum of security tools and services |
+| CPE(common product enumeration)                         | A standard machine-readable format for encoding names of IT products and platforms.  A set of procedures for comparing names.  A language for constructing "applicability statements" that combine CPE names with simple logical operators.  A standard notion of a CPE Dictionary. |
+
+### 使用nmap vulnerability scan
+
+缺点是扫描报告不易读，但是可以用xsltproc转换xml为html。
+
+漏斗扫描需要增加script参数，可选的script有;exploit,external,vuln,auth,default.
+
+```bash
+namp -sV --script=exploit,external,vuln,auth,default > -oX report.xml 192.168.82.187
+
+xsltproc report.xml -o report.html
+```
+
+nmap 脚本一些支持笼统扫描 usag. nmap -F --script auth 10.0.0.1
+
+auth: 负责处理鉴权证书（绕开鉴权）的脚本
+
+broadcast: 在局域网内探查更多服务开启状况，如 dhcp/dns/sqlserver 等服务
+
+brute: 提供暴力破解方式，针对常见的应用如 http/snmp 等
+
+default: 提供基本脚本扫描能力
+
+discovery: 对网络进行更多的信息，如 SMB 枚举、SNMP 查询等
+
+dos: 用于进行拒绝服务攻击
+
+exploit: 利用已知的漏洞入侵系统
+
+external: 利用第三方的数据库或资源，例如进行 whois 解析
+
+fuzzer: 模糊测试的脚本，发送异常的包到目标机，探测出潜在漏洞 
+
+intrusive: 入侵性的脚本，此类脚本可能引发对方的 IDS/IPS 的记录或屏蔽
+
+malware: 探测目标机是否感染了病毒、开启了后门等信息
+
+safe: 此类与 intrusive 相反，属于安全性脚本
+
+version: 负责增强服务与版本扫描（Version Detection）功能的脚本
+
+vuln: 负责检查目标机是否有常见的漏洞（Vulnerability），如是否有 MS08_067
+
+### 使用openvas vulnerability scan
+
+GPL，GNU General Public License。 fork of Nessus。
+
+Manager用于调配所有的组件，Scanner用于扫描目标主机，GreenboneSecurityAssistant用于提供web接口。
+
+![img](openvas.png)
 
 
 
+| OpenVAS-scanner(扫描器)       | 负责调用各种漏洞检测插件，完成实际的扫描操作。 | OpenVAS-cli（命令行接口）              | 负责提供从命令行访问OpenVAS服务层程序。                      |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------- | ------------------------------------------------------------ |
+| OpenVAS-manager(管理器)       | 负责分配扫描任务，并根据扫描结果生产评估报告。 | Greenbone-security-assistant(安全助手) | 负责提供访问OpenVAS服务层的Web接口，便于通过浏览器来建立扫描任务，是使用最简便的客户层组件。 |
+| OpenVAS-administrator(管理者) | 负责管理配置信息，用户授权等相关工作。         | Greenbone-Desktop-Suite(桌面套件)      | 负责提供访问OpenVAS服务层的图形程序界面，主要在windows系统中使用。 |
 
 
 
+```bash
+/etc/init.d/openvasad start
+/etc/init.d/openvasmd start
+/etc/init.d/openvassd start
+
+/etc/init.d/gsad start  # 打开greenbine-security  提供web接口
+
+./openvas-check-setup  # 检查openvas是否完整安装
+openvas-cerdata-sync && openvas-nvt-sync  # 认证数据和nvt数据库
+openvasmd --rebuild && openvasmd --migrate  
+```
 
 
 
+### 使用nessus vulnerability scan
+
+曾经免费现在商业化，应用最广泛最精确的工具
+
+所有主流平台都可以运行，主要用于*nix系列，结构与openvas一样，只有唯一的Daemon nessud
+
+## 实用指南
+
+**- shellcode**
+
+shellcode是一段用于利用软件漏洞而执行的代码，shellcode为16进制的机器码，因为经常让攻击者获得shell而得名。shellcode常常使用机器语言编写。 可在暂存器eip溢出后，塞入一段可让CPU执行的shellcode机器码，让电脑可以执行攻击者的任意指令。
+
+**- payload**
+
+病毒通常会做一些有害的或者恶性的动作。在病毒代码中实现这个功能的部分叫做“有效负载”（payload）。payload可以实现任何运行在受害者环境中的程序所能做的事情，并且能够执行动作包括破坏文件删除文件，向病毒的作者或者任意的接收者发送敏感信息，以及提供通向被感染计算机的后门。
+
+简单来说，Payload是黑客用来与被黑了的系统交互的简单脚本。使用payload，可以将数据传输到已经沦陷的系统。
+
+**- 缓冲区溢出攻击**
+
+[缓冲区](https://baike.baidu.com/item/%E7%BC%93%E5%86%B2%E5%8C%BA)溢出是指当计算机向缓冲区内填充数据位数时超过了缓冲区本身的容量，溢出的数据覆盖在合法数据上。最常见的手段是通过制造缓冲区溢出使程序运行一个用户shell，再通过shell执行其它命令。如果该程序属于root且有suid权限的话，攻击者就获得了一个有[root权限](https://baike.baidu.com/item/root%E6%9D%83%E9%99%90)的shell，可以对系统进行任意操作了。
+
+最普遍的漏洞。通过溢出，将shellcode覆盖在缓冲区上，从而获得权限。
+
+<https://www.360zhijia.com/anquan/438720.html>
+
+
+
+**- Metasploit**
+
+Metasploit是一个免费的、可下载的框架，通过它可以很容易地获取、开发并对计算机软件漏洞实施攻击。它本身附带数百个已知软件漏洞的专业级漏洞攻击工具。
 
 
 
